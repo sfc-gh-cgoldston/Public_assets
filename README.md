@@ -62,7 +62,7 @@ All estimates use Snowflake list pricing as a baseline. Actual costs depend on c
 ## Project Structure
 
 ```
-axios-rie-cost-estimator/
+rie-cost-estimator/
 ├── streamlit_app.py        # Main application
 ├── requirements.txt        # Python dependencies
 ├── .streamlit/
