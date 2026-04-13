@@ -76,6 +76,30 @@ with st.sidebar:
     }
     sd = scenario_defaults[scenario]
 
+    scenario_descriptions = {
+        "Conservative": (
+            "**Conservative** — Early-stage or pilot deployment. "
+            "Low data velocity (500 rows/sec), 6-month retention, small model fleet "
+            "(5 models), and minimal agent usage (200 calls/day). "
+            "Good starting point for an MVP or proof-of-concept."
+        ),
+        "Expected": (
+            "**Expected** — Typical mid-market media operation at production scale. "
+            "Balanced workloads: 2,000 rows/sec, 12-month retention, "
+            "15 models, and 1,000 agent calls/day."
+        ),
+        "Aggressive": (
+            "**Aggressive** — Enterprise-scale, high-velocity deployment. "
+            "10,000 rows/sec ingestion, 24-month retention, 40 models, "
+            "and 10,000 agent calls/day. Represents a fully-scaled production environment."
+        ),
+        "Custom": (
+            "**Custom** — All values reflect your manual slider inputs. "
+            "Use this to model a specific configuration."
+        ),
+    }
+    st.info(scenario_descriptions[scenario])
+
     st.markdown("---")
     st.caption("All estimates use Snowflake list pricing. Adjust the credit cost above to reflect contracted rates.")
 
@@ -230,12 +254,18 @@ with tab4:
             "% of corpus re-indexed per month (new/updated docs)", 0, 100, 10,
         )
         search_queries_per_day = st.slider("Search queries per day", 0, 500_000, 500, step=100)
-        cs_index_cost_per_1m_tokens = st.number_input(
-            "Index cost ($/1M tokens)", 0.01, 10.0, 0.10, step=0.01,
-            help="Approximate Cortex Search indexing cost — confirm with Snowflake pricing.",
+        cs_credits_per_1m = st.number_input(
+            "Credits per 1M index tokens (Cortex Search)",
+            min_value=0.001, max_value=1.0, value=0.033, step=0.001, format="%.4f",
+            help="Cortex Search indexing: ~0.033 credits/1M tokens (source: Snowflake internal pricing table). Applies to both index and query tokens.",
+        )
+        cs_index_cost_per_1m_tokens = cs_credits_per_1m * credit_cost
+        st.caption(
+            f"At \${credit_cost:.2f}/credit → \${cs_index_cost_per_1m_tokens:.4f}/1M tokens"
         )
         cs_query_cost_per_1k = st.number_input(
             "Query cost ($/1K queries)", 0.001, 5.0, 0.001, step=0.001, format="%.4f",
+            help="Flat per-query cost for search retrieval (embedding). Very small at typical volumes.",
         )
 
     tokens_per_word = 1.3
@@ -273,10 +303,24 @@ with tab5:
         avg_model_runtime_min = st.slider("Avg model runtime (minutes)", 1, 480, 30)
 
         st.markdown("**Frequency distribution of model runs:**")
+        st.caption("Should sum to 100% — distributes your model fleet across run frequencies.")
         pct_hourly  = st.slider("% of models — hourly", 0, 100, 10)
         pct_daily   = st.slider("% of models — daily",  0, 100, 50)
         pct_weekly  = st.slider("% of models — weekly", 0, 100, 30)
         pct_monthly_r = st.slider("% of models — monthly", 0, 100, 10)
+        pct_total = pct_hourly + pct_daily + pct_weekly + pct_monthly_r
+        if pct_total > 100:
+            st.warning(
+                f"Frequencies sum to **{pct_total}%** — {pct_total - 100}% over. "
+                "Some models are counted in multiple tiers, overstating total runs."
+            )
+        elif pct_total < 100:
+            st.info(
+                f"Frequencies sum to **{pct_total}%** — "
+                f"{100 - pct_total}% of models are unassigned and won't contribute any runs."
+            )
+        else:
+            st.success("Frequencies sum to 100% ✓")
 
     ml_cph = warehouse_credits_per_hour(ml_wh_size)
     runtime_h = avg_model_runtime_min / 60
