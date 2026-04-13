@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(
-    page_title="Axios RIE Cost Estimator",
+    page_title="RIE Cost Estimator",
     page_icon=":material/calculate:",
     layout="wide",
 )
@@ -81,7 +81,7 @@ with st.sidebar:
 
 # ─── HEADER ──────────────────────────────────────────────────────────────────
 
-st.markdown("# Axios — Reporter Intelligence Engine (RIE)")
+st.markdown("# Reporter Intelligence Engine (RIE)")
 st.markdown("### Snowflake Cost Estimator")
 st.caption(
     "Adjust variables in each tab to model infrastructure costs. "

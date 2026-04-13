@@ -1,6 +1,6 @@
-# Axios — Reporter Intelligence Engine (RIE) Cost Estimator
+# Reporter Intelligence Engine (RIE) Cost Estimator
 
-An interactive Streamlit app for estimating Snowflake infrastructure costs for the **Reporter Intelligence Engine (RIE)** — Axios's AI-powered newsroom assistant that surfaces story signals, audience intelligence, and reporter productivity insights.
+An interactive Streamlit app for estimating Snowflake infrastructure costs for a **Reporter Intelligence Engine (RIE)** — an AI-powered newsroom assistant that surfaces story signals, audience intelligence, and reporter productivity insights.
 
 ## Overview
 
@@ -29,7 +29,7 @@ The app runs on `http://localhost:8501` by default.
 
 All pricing inputs are adjustable in the app UI. Key global settings in the sidebar:
 
-- **Credit cost ($/credit)** — Set to Axios's contracted rate (default: $1.89)
+- **Credit cost ($/credit)** — Set to your contracted rate (default: $1.89)
 - **Storage cost ($/TB/month)** — Default: $23.00 (Snowflake list price)
 - **Scenario Presets** — Conservative / Expected / Aggressive starting points
 
